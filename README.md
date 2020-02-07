@@ -1,2 +1,2 @@
 # vecchiostile_bot
-bot vecchio stile per le traferte
+bot vecchio stile per trasferte e molto altro
