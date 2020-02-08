@@ -1,0 +1,39 @@
+{
+	"name": "vecchiostile_bot",
+	"version": "1.0.0",
+	"description": "vecchio stile bot",
+	"main": "server.js",
+	"dependencies": {
+		"dotenv": "^8.2.0",
+		"nedb": "^1.8.0",
+		"nedb-promises": "^4.0.1",
+		"telegraf": "^3.36.0"
+	},
+	"devDependencies": {},
+	"scripts": {
+		"test": "nodemon server.js",
+		"start": "node server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rickycraft/vecchiostile_bot.git"
+	},
+	"keywords": [
+		"virtus",
+		"boys",
+		"vecchiostile",
+		"trasferta"
+	],
+	"author": "rickycraft",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/rickycraft/vecchiostile_bot/issues"
+	},
+	"homepage": "https://github.com/rickycraft/vecchiostile_bot#readme",
+	"prettier": {
+		"singleQuote": true,
+		"tabWidth": 4,
+		"useTabs": true,
+		"trailingComma": "es5"
+	}
+}
