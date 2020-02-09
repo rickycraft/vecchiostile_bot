@@ -5,87 +5,76 @@ const Telegraf = require('telegraf');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // database
-const Datastore = require('nedb-promises');
-const db = Datastore.create('database.db');
-db.load();
+const db = require('./db');
 
 const messages = require('./messages');
 
-bot.start(ctx => {
-	console.log(ctx.from);
+// Classes
+const Trasferta = require('./trasferta');
+const User = require('./user');
+const News = require('./news');
+
+bot.start(async ctx => {
+	await User.addUser(ctx.from.id, ctx.from.username);
 	ctx.reply(messages.welcome);
-	ctx.reply('test');
 });
 
 bot.hears('iscrizione news', async ctx => {
-	let user = await db.findOne({ id: ctx.from.id });
-	if (!user) {
-		user = ctx.from;
-		user.news = true;
-		await db.insert(user);
-		ctx.reply(messages.sub_news);
-	} else {
+	const user = new User(ctx.from.id);
+	await user.load();
+	if (user.news) {
 		ctx.reply(messages.already_sub_news);
+	} else {
+		user.news = true;
+		await user.update();
+		ctx.reply(messages.sub_news);
 	}
 });
 
 bot.hears('annulla iscrizione news', async ctx => {
-	let user = await db.findOne({ id: ctx.from.id });
-	if (user) {
-		if (user.news) {
-			await db.update({ _id: user._id }, { $set: { news: false } });
-			ctx.reply(messages.unsub_news);
-		}
+	const user = new User(ctx.from.id);
+	await user.load();
+	if (user.news) {
+		user.news = false;
+		await user.update();
+		ctx.reply(messages.unsub_news);
 	} else {
 		ctx.reply(messages.notsub_news);
 	}
 });
 
+bot.hears(/inserisci news\n[\s\S]*/gm, async ctx => {
+	const news = News.parse(ctx);
+	await news.save();
+	ctx.reply(messages.added_news);
+});
+
+bot.hears('pubblica news', async ctx => {
+	let news = (await News.latest())[0];
+	news = News.load(news);
+	ctx.reply(news.show());
+});
+
+bot.hears(/aggiungi trasferta\n[\s\S]*/gm, async ctx => {
+	const trasferta = Trasferta.parse(ctx.message);
+	await trasferta.save(ctx.from.id);
+	ctx.reply('Trasferta aggiunta');
+});
+
 bot.hears('trasferte', async ctx => {
-	let curr_date = new Date();
-
-	const trasferte = await db
-		.find({
-			body: { $exists: true },
-			date: { $gte: curr_date },
-		})
-		.sort({ date: -1 })
-		.limit(3);
-	if (trasferte.length == 0) ctx.reply(messages.no_trasferte);
-	else {
-		trasferte.forEach(trasferta => {
-			ctx.reply(showTrasferta(trasferta));
-		});
-	}
+	ctx.reply('Queste sono le trasferte in arrivo: ');
+	const trasferte = await Trasferta.getTrasferte();
+	ctx.reply(Trasferta.show(trasferte));
 });
 
-bot.command('newtrasferta', async ctx => {
-	const trasferta = addTrasferta(ctx.message);
-	await db.insert(trasferta);
-	ctx.reply('trasferta aggiunta');
+bot.command('alltrasferte', async ctx => {
+	ctx.reply("Queste sono tutte le trasferte dell'anno");
+	const trasferte = await Trasferta.getAllTrasferte();
+	ctx.reply(Trasferta.show(trasferte));
 });
 
-function addTrasferta(msg) {
-	let trasferta = {
-		body: 'trasferta 0',
-		where: 'roma',
-		date: new Date(2020, 8, 21),
-	};
-	return trasferta;
-}
-
-bot.hears('test', ctx => {
-	const curr_date = new Date(2020, 8, 20);
-	const now = Date.now();
-	console.log(now);
-	console.log(curr_date);
-	console.log(curr_date > now);
+bot.hears('test', async ctx => {
+	console.log(ctx);
 });
-
-function showTrasferta(trasferta) {
-	return `La prossima trasferta si terra a ${
-		trasferta.where
-	} il ${trasferta.date.toDateString()}\n${trasferta.body}`;
-}
 
 bot.startPolling();

@@ -1,3 +1,4 @@
-{"body":"trasferta 0","where":"roma","date":{"$$date":1568930400000},"_id":"fKTvk5zzgi15ymMX"}
-{"body":"trasferta 0","where":"roma","date":{"$$date":1600639200000},"_id":"npBovfRPN4gZkyxS"}
-{"body":"trasferta 1","where":"roma","date":{"$$date":1600552800000},"_id":"vJkdQRbW6aYB2F4p"}
+{"news_body":"piccola grande\nmegra grande news","userId":216608019,"date":{"$$date":1581272112177},"_id":"HbIKe9hwesPsgEkX"}
+{"date":{"$$date":1581361800000},"where":"Roma","trasferta":"Trasferta di prova","userId":216608019,"_id":"of8fqlckHEbNEWmb"}
+{"id":216608019,"username":"rikycraft","news":true,"modder":false,"_id":"uMTLK7w8KbR1bU7n"}
+{"news_body":"piccola grande\nmega grande news\nnews fixata","userId":216608019,"date":{"$$date":1581272471814},"_id":"jITYLvjq82EjJYUt"}

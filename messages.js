@@ -5,4 +5,6 @@ module.exports = {
 	unsub_news: "Hai annullato l'iscrizione con successo",
 	notsub_news: 'Non sei iscritto alle news',
 	no_trasferte: 'Non ci sono trasferte in arrivo',
+	restart_bot: 'Per piacere riavvia il bot',
+	added_news: 'Hai aggiunto con successo la news',
 };
