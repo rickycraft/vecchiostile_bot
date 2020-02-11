@@ -4,14 +4,17 @@ const db = require('./db');
 const messages = require('./messages');
 
 module.exports = class Trasferta {
-	constructor() {}
+	constructor(date, where, trasferta) {
+		this.date = date;
+		this.where = where;
+		this.trasferta = trasferta;
+	}
 
-	save(id) {
+	save() {
 		return db.insert({
 			date: this.date,
 			where: this.where,
 			trasferta: this.trasferta,
-			userId: id,
 		});
 	}
 
@@ -23,12 +26,11 @@ module.exports = class Trasferta {
 	}
 
 	static parse(msg) {
-		const t = new Trasferta();
 		const parsed = msg.text.split('\n');
-		t.date = this.parseDate(parsed[1]);
-		t.where = parsed[2];
-		t.trasferta = parsed.slice(3).join('\n');
-		return t;
+		const date = this.parseDate(parsed[1]);
+		const where = parsed[2];
+		const body = parsed.slice(3).join('\n');
+		return new Trasferta(date, where, body);
 	}
 
 	static showOne(trasferta) {
@@ -44,7 +46,7 @@ module.exports = class Trasferta {
 		else return messages.no_trasferte;
 	}
 
-	static getTrasferte() {
+	static getTrasferte(n) {
 		const curr_date = new Date();
 		return db
 			.find({
@@ -53,7 +55,20 @@ module.exports = class Trasferta {
 				date: { $gte: curr_date },
 			})
 			.sort({ date: 1 })
-			.limit(3);
+			.limit(n);
+	}
+
+	static async deleteTrasferta() {
+		const curr_date = new Date();
+		const trasferta = await db
+			.find({
+				trasferta: { $exists: true },
+				where: { $exists: true },
+				date: { $gte: curr_date },
+			})
+			.sort({ date: 1 })
+			.limit(1);
+		await db.remove(trasferta[0]);
 	}
 
 	static getAllTrasferte() {
