@@ -72,7 +72,7 @@ bot.hears(/^inserisci trasferta\n[\s\S]*/i, async ctx => {
 	ctx.reply('trasferta aggiunta', keyboard);
 });
 
-bot.hears(/^(pubblica trasferte foto)/i, ctx => {
+bot.hears(/^(pubblica trasferta foto)/i, ctx => {
 	Trasferta.public(ctx.from.id, true);
 });
 
