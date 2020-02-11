@@ -1,33 +1,47 @@
 const db = require('./db');
-module.exports = class News {
-	constructor(news_body, date) {
-		this.news_body = news_body;
-		this.date = date ? date : new Date();
-	}
+const User = require('./user');
+const Photo = require('./photo');
+const telegram = require('./bot').telegram;
 
-	static parse(message) {
+module.exports = class News {
+	constructor() {}
+
+	static async parse(message) {
 		const parsed = message.text.split('\n');
 		const body = parsed.slice(1).join('\n');
-		return new News(body);
-	}
-
-	delete() {
-		return db.remove({ news_body: this.news_body });
-	}
-
-	save() {
-		return db.insert(this.news);
-	}
-
-	get news() {
-		return {
-			news_body: this.news_body,
-			date: this.date,
+		const news = {
+			news_body: body,
+			date: new Date(),
 		};
+		await db.insert(news);
 	}
 
-	show() {
-		return this.news_body;
+	static async public(id, isphoto) {
+		const flag = await User.isModder(id);
+		if (!flag) return;
+
+		let news = this.latest();
+		let users = User.getAll();
+		let photo;
+		if (isphoto) {
+			photo = await Photo.latest();
+		}
+		news = await news;
+		users = await users;
+
+		if (news)
+			users.forEach(user => {
+				telegram.sendMessage(user.user_id, news.news_body);
+				if (isphoto && photo)
+					telegram.sendPhoto(user.user_id, photo.photo_id);
+			});
+		else telegram.sendMessage(id, 'non ci sono news');
+	}
+
+	static async removeLatest() {
+		const news = await this.latest();
+		if (news) return db.remove(news);
+		else return 0;
 	}
 
 	static async latest() {
@@ -37,7 +51,7 @@ module.exports = class News {
 			})
 			.sort({ date: -1 })
 			.limit(1);
-		if (arr.length == 0) return new News('non ci sono news');
-		else return new News(arr[0].news_body, arr[0].date);
+		if (arr.length > 0) return arr[0];
+		else return null;
 	}
 };

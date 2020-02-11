@@ -1,13 +1,11 @@
 require('dotenv').config();
 
 // telegraf
-const Telegraf = require('telegraf');
-const bot = new Telegraf(process.env.BOT_TOKEN);
-const Markup = require('telegraf/markup');
+const API = require('./bot');
+const bot = API.bot;
 
 // database
-const db = require('./db');
-const fetch = require('node-fetch');
+const delay = require('delay');
 
 const messages = require('./messages');
 
@@ -29,83 +27,113 @@ bot.use((ctx, next) => {
 	} else next();
 });
 
+// NEWS
+
 bot.hears(/inserisci news\n[\s\S]*/gim, async ctx => {
-	const news = News.parse(ctx.message);
-	await news.save();
-	const keyboard = Markup.keyboard([['pubblica news'], ['cancella news']])
-		.oneTime()
-		.resize()
-		.extra();
+	const flag = await User.isModder(ctx.from.id);
+	if (!flag) return;
+
+	await News.parse(ctx.message);
+
+	const keyboard = API.getKeyboard([
+		['pubblica news', 'pubblica news foto'],
+		['cancella news'],
+	]);
 	ctx.reply(messages.added_news, keyboard);
 });
 
+bot.hears(/cancella news/i, async ctx => {
+	const flag = await User.isModder(ctx.from.id);
+	if (!flag) return;
+
+	const num = await News.removeLatest();
+
+	if (num > 0) ctx.reply('news cancellata');
+	else ctx.reply('news non cancellata');
+});
+
 bot.hears(/^(pubblica news foto)/i, async ctx => {
-	const news = await News.latest();
-	const photo = await Photo.latest();
-	ctx.reply(news.show());
-	ctx.replyWithPhoto(photo.photo_id);
+	News.public(ctx.from.id, true);
 });
 
 bot.hears(/^(pubblica news)/i, async ctx => {
-	const news = await News.latest();
-	ctx.reply(news.show());
+	News.public(ctx.from.id);
 });
 
-bot.hears(/cancella news/i, async ctx => {
-	const news = await News.latest();
-	await news.delete();
-	ctx.reply('news cancellata');
+// TRASFERTA
+
+bot.hears(/^inserisci trasferta\n[\s\S]*/i, async ctx => {
+	await Trasferta.insert(ctx.message);
+
+	const keyboard = API.getKeyboard([
+		['pubblica trasferta', 'pubblica trasferta foto'],
+		['cancella trasferta'],
+	]);
+	ctx.reply('trasferta aggiunta', keyboard);
 });
 
-bot.hears(/^aggiungi trasferta\n[\s\S]*/i, async ctx => {
-	const trasferta = Trasferta.parse(ctx.message);
-	await trasferta.save();
-	ctx.reply('trasferta aggiunta');
+bot.hears(/^(pubblica trasferte foto)/i, ctx => {
+	Trasferta.public(ctx.from.id, true);
+});
+
+bot.hears(/^(pubblica trasferte)/i, ctx => {
+	Trasferta.public(ctx.from.id);
 });
 
 bot.hears(/^cancella trasferta/i, async ctx => {
-	await Trasferta.deleteTrasferta();
+	await Trasferta.removeLatest();
 	ctx.reply('trasferta cancellata con successo');
 });
 
-// TODO add photo to trasferte
 bot.hears(/^trasferte\s*(\d)?/i, async ctx => {
 	ctx.reply(messages.upcomig_trasferte);
+	await delay(500);
 
 	const limit = ctx.match[1] ? ctx.match[1] : 1;
-	const trasferte = await Trasferta.getTrasferte(limit);
+	const trasferte = await Trasferta.upcoming(limit);
 
-	ctx.reply(Trasferta.show(trasferte));
+	const msg = trasferte.reduce(
+		(acc, val) => acc + Trasferta.show(val) + '\n#####\n',
+		''
+	);
+	ctx.reply(msg);
 });
 
 bot.command('alltrasferte', async ctx => {
 	ctx.reply(messages.all_trasferte);
-	const trasferte = await Trasferta.getAllTrasferte();
-	ctx.reply(Trasferta.show(trasferte));
+
+	const trasferte = await Trasferta.all();
+	const msg = trasferte.reduce(
+		(acc, val) => acc + Trasferta.show(val) + '\n#####\n',
+		''
+	);
+
+	ctx.reply(msg);
 });
 
-bot.hears('test', ctx => {});
-
-bot.on('message', async ctx => {
-	/*
-	console.log(ctx.message.photo);
-	console.log(ctx.message.photo[0].file_id);
-	// console.log(ctx.updateSubTypes);
-	const file_id = ctx.message.photo[0].file_id;
-	
-	const image_url = await fetch(
-		process.env.GET_FILE_URL.concat(file_id)
-	).then(res => res.json());
-	console.log(image_url);
-	*/
-});
+// PHOTO
 
 async function onPhoto(ctx) {
-	console.log('photo');
 	const photo_id = ctx.message.photo[0].file_id;
-	const photo = new Photo(photo_id);
-	await photo.save();
+	await Photo.insert(photo_id);
 	ctx.reply('foto salvata con successo');
 }
+
+bot.hears(/cancella foto/i, async ctx => {
+	const flag = await User.isModder(ctx.from.id);
+	if (!flag) return;
+
+	await Photo.removeLatest();
+	ctx.reply('foto rimossa con successo');
+});
+
+bot.hears(/pubblica foto/i, async ctx => {
+	const photo = await Photo.latest();
+	ctx.replyWithPhoto(photo.photo_id);
+});
+
+bot.hears('test', async ctx => {
+	console.log('test');
+});
 
 bot.startPolling();

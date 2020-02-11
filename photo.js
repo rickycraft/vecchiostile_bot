@@ -1,16 +1,6 @@
 const db = require('./db');
 module.exports = class Photo {
-	constructor(photo_id, date) {
-		this.photo_id = photo_id;
-		this.date = date ? date : new Date();
-	}
-
-	get photo() {
-		return {
-			photo_id: this.photo_id,
-			date: this.date,
-		};
-	}
+	constructor() {}
 
 	static async latest() {
 		const photos = await db
@@ -19,10 +9,20 @@ module.exports = class Photo {
 			})
 			.sort({ date: -1 })
 			.limit(1);
-		return photos[0];
+		if (photos.length > 0) return photos[0];
+		else return null;
 	}
 
-	save() {
-		return db.insert(this.photo);
+	static async removeLatest() {
+		const photo = await this.latest();
+		if (photo) return db.remove(photo);
+		else return 0;
+	}
+
+	static insert(photo_id) {
+		return db.insert({
+			photo_id: photo_id,
+			date: new Date(),
+		});
 	}
 };
