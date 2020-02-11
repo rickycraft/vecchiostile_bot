@@ -1,9 +1,10 @@
 const db = require('./db');
 module.exports = class News {
-	constructor(news, id) {
+	constructor(news, userId) {
 		this.news_body = news;
-		this.userId = id;
+		this.userId = userId;
 		this.date = new Date();
+		this._id = 0;
 	}
 
 	static parse(ctx) {
@@ -15,7 +16,12 @@ module.exports = class News {
 	static load(news) {
 		const n = new News(news.news_body, news.userId);
 		n.date = news.date;
+		n._id = news._id;
 		return n;
+	}
+
+	delete() {
+		return db.remove({ _id: this._id });
 	}
 
 	get obj() {

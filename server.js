@@ -3,6 +3,7 @@ require('dotenv').config();
 // telegraf
 const Telegraf = require('telegraf');
 const bot = new Telegraf(process.env.BOT_TOKEN);
+const Markup = require('telegraf/markup');
 
 // database
 const db = require('./db');
@@ -31,7 +32,7 @@ bot.hears('iscrizione news', async ctx => {
 	}
 });
 
-bot.hears('annulla iscrizione news', async ctx => {
+bot.command('annullanews', async ctx => {
 	const user = new User(ctx.from.id);
 	await user.load();
 	if (user.news) {
@@ -43,25 +44,46 @@ bot.hears('annulla iscrizione news', async ctx => {
 	}
 });
 
-bot.hears(/inserisci news\n[\s\S]*/gm, async ctx => {
+bot.hears(/inserisci news\n[\s\S]*/gim, async ctx => {
 	const news = News.parse(ctx);
 	await news.save();
-	ctx.reply(messages.added_news);
+	const keyboard = Markup.keyboard([['pubblica news'], ['cancella news']])
+		.oneTime()
+		.resize()
+		.extra();
+	ctx.reply(messages.added_news, keyboard);
 });
 
-bot.hears('pubblica news', async ctx => {
-	let news = (await News.latest())[0];
+bot.hears(/cancella news/i, async ctx => {
+	let news = await News.latest();
+	if (news.length > 0) news = news[0];
+	else {
+		ctx.reply('non ci sono news da cancellare');
+		return;
+	}
+	news = News.load(news);
+	await news.delete();
+	ctx.reply('News cancellata');
+});
+
+bot.hears(/pubblica news/i, async ctx => {
+	let news = await News.latest();
+	if (news.length > 0) news = news[0];
+	else {
+		ctx.reply('non ci sono news');
+		return;
+	}
 	news = News.load(news);
 	ctx.reply(news.show());
 });
 
-bot.hears(/aggiungi trasferta\n[\s\S]*/gm, async ctx => {
+bot.hears(/aggiungi trasferta\n[\s\S]*/gim, async ctx => {
 	const trasferta = Trasferta.parse(ctx.message);
 	await trasferta.save(ctx.from.id);
 	ctx.reply('Trasferta aggiunta');
 });
 
-bot.hears('trasferte', async ctx => {
+bot.hears(/trasferte/i, async ctx => {
 	ctx.reply('Queste sono le trasferte in arrivo: ');
 	const trasferte = await Trasferta.getTrasferte();
 	ctx.reply(Trasferta.show(trasferte));
@@ -73,8 +95,12 @@ bot.command('alltrasferte', async ctx => {
 	ctx.reply(Trasferta.show(trasferte));
 });
 
-bot.hears('test', async ctx => {
-	console.log(ctx);
+bot.hears('test', ctx => {
+	const keyboard = Markup.keyboard(['/simple', 'test', '/pyramid'])
+		.oneTime()
+		.resize()
+		.extra();
+	ctx.reply('One time keyboard', keyboard);
 });
 
 bot.startPolling();
