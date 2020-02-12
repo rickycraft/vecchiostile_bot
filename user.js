@@ -1,16 +1,9 @@
 const db = require('./db');
+const API = require('./bot');
+const Photo = require('./photo');
 
 module.exports = class User {
-	constructor(user_id, username) {
-		this.user_id = user_id;
-		this.username = username;
-	}
-
-	static async load(user_id) {
-		const user = await db.findOne({ user_id: user_id });
-		if (user) return new User(user.user_id, user.username);
-		else return null;
-	}
+	constructor() {}
 
 	static async addUser(user_id, username) {
 		const user = await db.findOne({ user_id: user_id });
@@ -34,17 +27,23 @@ module.exports = class User {
 		}
 	}
 
-	static getAll() {
+	static all() {
 		return db.find({
 			user_id: { $exists: true },
 			username: { $exists: true },
 		});
 	}
 
-	get user() {
-		return {
-			user_id: this.user_id,
-			username: this.username,
-		};
+	static async public(msg, isphoto) {
+		let users = this.all();
+		let photo = null;
+		if (isphoto) photo = await Photo.latest();
+		users = await users;
+
+		users.forEach(user => {
+			API.telegram.sendMessage(user.user_id, msg, API.Extra.HTML());
+			if (isphoto && photo)
+				API.telegram.sendPhoto(user.user_id, photo.photo_id);
+		});
 	}
 };
