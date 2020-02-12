@@ -21,12 +21,12 @@ API.bot.hears(/cancella foto/i, async ctx => {
 	else ctx.reply('foto non cancellata');
 });
 
-API.bot.hears(/pubblica foto/i, async ctx => {
+API.bot.hears(/ultima foto/i, async ctx => {
 	const photo = await Photo.latest();
 	ctx.replyWithPhoto(photo.photo_id);
 });
 
 module.exports = {
 	insertPhoto: insertPhoto,
-	commands: ['cancella foto', 'pubblica foto'],
+	commands: ['cancella foto', 'ultima foto'],
 };

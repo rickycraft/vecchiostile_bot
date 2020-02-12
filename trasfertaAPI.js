@@ -8,12 +8,15 @@ const keyboard = API.keyboard([
 	['cancella trasferta'],
 ]);
 
-API.bot.hears(/^inserisci trasferta\n[\s\S]*/i, async ctx => {
+API.bot.hears(/^inserisci trasferta\s*\n[\s\S]*/i, async ctx => {
 	const flag = await User.isModder(ctx.from.id);
 	if (!flag) return ctx.reply(messages.no_valid);
 
-	await Trasferta.insert(ctx.message);
-	ctx.reply('trasferta aggiunta', keyboard);
+	const trasferta = await Trasferta.insert(ctx.message);
+	const msg = messages.added_trasferta + Trasferta.show(trasferta);
+	const extra = API.Extra.HTML().load(keyboard);
+
+	ctx.reply(msg, extra);
 });
 
 API.bot.hears(/^cancella trasferta/i, async ctx => {
@@ -21,8 +24,8 @@ API.bot.hears(/^cancella trasferta/i, async ctx => {
 	if (!flag) return ctx.reply(messages.no_valid);
 
 	const removed = await Trasferta.removeLast();
-	if (removed > 0) ctx.reply('trasferta cancellata');
-	else ctx.reply('trasferta non cancellata');
+	if (removed > 0) ctx.reply('Trasferta cancellata');
+	else ctx.reply('Trasferta non cancellata');
 });
 
 API.bot.hears(/^(pubblica trasferta foto)/i, ctx => {
@@ -38,11 +41,13 @@ API.bot.hears(/^trasferte\s*(\d)?/i, async ctx => {
 	// se trasferta è 0 mostrale tutte
 	let trasferte = limit == 0 ? Trasferta.all() : Trasferta.upcoming(limit);
 	trasferte = await trasferte;
-
-	const msg = trasferte.reduce(
-		(acc, val) => acc + Trasferta.show(val) + '\n',
-		messages.upcomig_trasferte
-	);
+	let msg;
+	if (trasferte.length > 0)
+		msg = trasferte.reduce(
+			(acc, val) => acc + Trasferta.show(val) + '\n',
+			messages.upcomig_trasferte
+		);
+	else msg = messages.no_trasferte;
 	ctx.reply(msg, API.Extra.HTML());
 });
 

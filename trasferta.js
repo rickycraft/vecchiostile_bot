@@ -60,10 +60,10 @@ module.exports = class Trasferta {
 			.find({
 				trasferta: { $exists: true },
 				where: { $exists: true },
-				date: { $gte: curr_date },
 			})
 			.sort({ date: -1 })
 			.limit(1);
+
 		if (trasferte.length > 0) return db.remove(trasferte[0]);
 		else return 0;
 	}

@@ -17,8 +17,6 @@ bot.start(async ctx => {
 	ctx.reply(messages.welcome);
 });
 
-//TODO pubblica foto e basta, tastiere, help template
-
 // PHOTO
 const photo = require('./photoAPI');
 
@@ -45,14 +43,18 @@ bot.help(async ctx => {
 		msg = trasferte.commands
 			.reduce((acc, val) => acc + '\n' + val, msg)
 			.concat('\n#####');
-		msg = news.commands.reduce((acc, val) => acc + '\n' + val, msg);
-	} else {
-		msg +=
-			'vedere la prossima trasferta: trasferte\n' +
-			'vedere le prossime n trasferte: trasferte n\n' +
-			"vedere tutte le trasferte dell'anno: trasferte 0";
+		msg = news.commands
+			.reduce((acc, val) => acc + '\n' + val, msg)
+			//			.concat('\n#####')
+			.concat('\n\nUTENTE\n');
 	}
-	ctx.reply(msg);
+	msg +=
+		'\nvedere la prossima trasferta: <b>trasferte</b>\n' +
+		'vedere le prossime n trasferte: <b>trasferte n</b>\n' +
+		"vedere tutte le trasferte dell'anno: <b>trasferte 0</b>\n" +
+		"vedere l'ultima news: <b>ultima news</b>";
+
+	ctx.reply(msg, API.Extra.HTML());
 });
 
 bot.command('template', async ctx => {
@@ -61,7 +63,7 @@ bot.command('template', async ctx => {
 
 	let msg =
 		'inserisci trasferta\n' +
-		'-/-/- -:-\n' +
+		'20/2/21 10:20\n' +
 		'dove\n' +
 		'messaggio\n' +
 		'#####\n';
@@ -71,11 +73,13 @@ bot.command('template', async ctx => {
 
 // TEST
 bot.hears('test', async ctx => {
-	const flag = ctx.message ? true : false;
-	console.log(flag);
+	const keyboard = API.keyboard(['random']);
+	const extra = API.Extra.HTML().load(keyboard);
+	ctx.reply('<b>test1</b>', extra);
 });
 
 bot.on('message', ctx => {
+	console.log(ctx.message.text);
 	ctx.reply(messages.no_valid);
 });
 

@@ -30,7 +30,6 @@ module.exports = class User {
 	static all() {
 		return db.find({
 			user_id: { $exists: true },
-			username: { $exists: true },
 		});
 	}
 

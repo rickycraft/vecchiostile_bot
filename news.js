@@ -3,14 +3,14 @@ const db = require('./db');
 module.exports = class News {
 	constructor() {}
 
-	static async parse(message) {
+	static parse(message) {
 		const parsed = message.text.split('\n');
 		const body = parsed.slice(1).join('\n');
 		const news = {
 			news_body: body,
 			date: new Date(),
 		};
-		await db.insert(news);
+		return db.insert(news);
 	}
 
 	static async removeLatest() {
