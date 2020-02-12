@@ -58,4 +58,11 @@ const public = async (id, isphoto) => {
 	} else API.telegram.sendMessage(id, 'non ci sono trasferte da pubblicare');
 };
 
-module.exports = Trasferta;
+const commands = [
+	'inserisci trasferta',
+	'cancella trasferta',
+	'pubblica trasferta',
+	'pubblica trasferta foto',
+];
+
+module.exports = { commands: commands };

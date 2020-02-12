@@ -40,8 +40,17 @@ public = async (id, isphoto) => {
 	if (!flag) return API.telegram.sendMessage(id, messages.no_valid);
 
 	const news = await News.latest();
+	let msg = messages.news + news.news_body;
 
-	if (news) await User.public(news.news_body, isphoto);
+	if (news) await User.public(msg, isphoto);
 	else telegram.sendMessage(id, 'non ci sono news');
 };
-module.exports = News;
+
+const commands = [
+	'inserisci news',
+	'cancella news',
+	'pubblica news',
+	'pubblica news foto',
+];
+
+module.exports = { commands: commands };

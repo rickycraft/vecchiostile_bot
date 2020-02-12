@@ -26,4 +26,7 @@ API.bot.hears(/pubblica foto/i, async ctx => {
 	ctx.replyWithPhoto(photo.photo_id);
 });
 
-module.exports = insertPhoto;
+module.exports = {
+	insertPhoto: insertPhoto,
+	commands: ['cancella foto', 'pubblica foto'],
+};

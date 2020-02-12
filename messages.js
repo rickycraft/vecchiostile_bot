@@ -7,4 +7,5 @@ module.exports = {
 	all_trasferte: "<b>Queste sono tutte le trasferte dell'anno:</b>\n",
 	next_trasferta: '<b>Prossima trasferta:</b>\n',
 	no_valid: 'Non è un comando valido',
+	news: '<b>Importante:</b>\n',
 };
