@@ -1,12 +1,12 @@
 require('dotenv').config();
 
 // telegraf
-const API = require('./bot');
+const API = require('./classes/api');
 const bot = API.bot;
 
 // Classes
-const User = require('./user');
-const messages = require('./messages');
+const User = require('./classes/user');
+const messages = require('./classes/messages');
 
 bot.catch((err, ctx) => {
 	console.log(`ERROR ${ctx.updateType}`, err);
@@ -18,7 +18,7 @@ bot.start(async ctx => {
 });
 
 // PHOTO
-const photo = require('./photoAPI');
+const photo = require('./photo/photoAPI');
 
 bot.use((ctx, next) => {
 	if (ctx.updateType == 'message' && ctx.updateSubTypes == 'photo')
@@ -27,10 +27,10 @@ bot.use((ctx, next) => {
 });
 
 // TRASFERTE
-const trasferte = require('./trasfertaAPI');
+const trasferte = require('./trasferta/trasfertaAPI');
 
 // NEWS
-const news = require('./newsAPI');
+const news = require('./news/newsAPI');
 
 // HELP
 bot.help(async ctx => {
@@ -45,7 +45,6 @@ bot.help(async ctx => {
 			.concat('\n#####');
 		msg = news.commands
 			.reduce((acc, val) => acc + '\n' + val, msg)
-			//			.concat('\n#####')
 			.concat('\n\nUTENTE\n');
 	}
 	msg +=

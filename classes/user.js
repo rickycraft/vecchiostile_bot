@@ -1,6 +1,6 @@
-const db = require('./db');
-const API = require('./bot');
-const Photo = require('./photo');
+const API = require('./api');
+const Photo = require('../photo/photo');
+const db = require('../database/db');
 
 module.exports = class User {
 	constructor() {}

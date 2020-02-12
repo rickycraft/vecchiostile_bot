@@ -1,7 +1,7 @@
 const moment = require('moment');
 moment.locale('it');
 
-const db = require('./db');
+const db = require('../database/db');
 
 parseDate = date => {
 	// 9/2/20 15:40

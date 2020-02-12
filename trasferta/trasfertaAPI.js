@@ -1,6 +1,6 @@
-const API = require('./bot');
-const messages = require('./messages');
-const User = require('./user');
+const API = require('../classes/api');
+const User = require('../classes/user');
+const messages = require('../classes/messages');
 const Trasferta = require('./trasferta');
 
 const keyboard = API.keyboard([

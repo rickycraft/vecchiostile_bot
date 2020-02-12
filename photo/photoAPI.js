@@ -1,7 +1,7 @@
-const API = require('./bot');
+const API = require('../classes/api');
+const User = require('../classes/user');
+const messages = require('../classes/messages');
 const Photo = require('./photo');
-const User = require('./user');
-const messages = require('./messages');
 
 const insertPhoto = async ctx => {
 	const flag = await User.isModder(ctx.from.id);

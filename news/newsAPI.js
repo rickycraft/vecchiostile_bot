@@ -1,7 +1,7 @@
-const API = require('./bot');
+const API = require('../classes/api');
+const User = require('../classes/user');
+const messages = require('../classes/messages');
 const News = require('./news');
-const User = require('./user');
-const messages = require('./messages');
 
 const keyboard = API.keyboard([
 	['pubblica news', 'pubblica news foto'],
