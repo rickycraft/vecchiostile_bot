@@ -7,6 +7,7 @@ const bot = API.bot;
 // Classes
 const User = require('./classes/user');
 const messages = require('./classes/messages');
+const unknown = require('./classes/unknown');
 
 bot.catch((err, ctx) => {
 	console.log(`ERROR ${ctx.updateType}`, err);
@@ -71,15 +72,26 @@ bot.command('template', async ctx => {
 });
 
 // TEST
-bot.hears('test', async ctx => {
-	const keyboard = API.keyboard(['random']);
-	const extra = API.Extra.HTML().load(keyboard);
-	ctx.reply('<b>test1</b>', extra);
+const admin_id = 216608019;
+
+bot.hears('test', async (ctx, next) => {
+	if (ctx.from.id != admin_id) return next();
+	ctx.reply('test');
 });
 
-bot.on('message', ctx => {
+bot.command('unknown', async (ctx, next) => {
+	if (ctx.from.id != admin_id) return next();
+	const commands = await unknown.all();
+	console.log(commands);
+	let msg = 'Comandi non conosciuti:\n';
+	msg = commands.reduce((acc, val) => acc + val.command + '\n', msg);
+	ctx.reply(msg);
+});
+
+bot.on('message', async ctx => {
 	console.log(ctx.message.text);
 	ctx.reply(messages.no_valid);
+	await unknown.insert(ctx.message.text);
 });
 
 bot.startPolling();
