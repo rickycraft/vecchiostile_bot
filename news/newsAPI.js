@@ -8,15 +8,25 @@ const keyboard = API.keyboard([
 	['cancella news'],
 ]);
 
-API.bot.hears(/inserisci news\s*\n[\s\S]*/i, async ctx => {
-	const flag = await User.isModder(ctx.from.id);
-	if (!flag) return ctx.reply(messages.no_valid);
+const rgx = require('../classes/regex');
+const insert_news = rgx.build(`inserisci news${rgx.s}(${rgx.body}+)`);
 
-	const news = await News.parse(ctx.message);
-	const msg = messages.added_news + '\n' + news.news_body;
+API.bot.hears(insert_news, async (ctx, next) => {
+	const flag = await User.isModder(ctx.from.id);
+	if (!flag) return next();
+
+	const news = await News.parse(ctx.match);
+	const msg = messages.added_news + news.news_body;
 	const extra = API.Extra.HTML().load(keyboard);
 
 	ctx.reply(msg, extra);
+});
+
+API.bot.hears(/inserisci news/, async (ctx, next) => {
+	const flag = await User.isModder(ctx.from.id);
+	if (!flag) return next();
+
+	ctx.reply("controlla l'input");
 });
 
 API.bot.hears(/cancella news/i, async ctx => {

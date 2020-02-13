@@ -74,9 +74,21 @@ bot.command('template', async ctx => {
 // TEST
 const admin_id = 216608019;
 
+API.bot.on('poll', ctx => console.log('Poll update', ctx.poll));
+API.bot.on('poll_answer', ctx => console.log('Poll answer', ctx.pollAnswer));
+
+require('./poll');
+const regex = require('./classes/regex');
+
 bot.hears('test', async (ctx, next) => {
 	if (ctx.from.id != admin_id) return next();
-	ctx.reply('test');
+
+	const msg1 = await ctx.replyWithPoll('poll di prova', ['val 1', 'val 2']);
+	console.log(msg1);
+
+	const msg = await API.telegram.stopPoll(216608019, msg1.message_id);
+	//await ctx.replyWithPoll('poll di prova', ['val 1', 'val 2']);
+	console.log(msg);
 });
 
 bot.command('unknown', async (ctx, next) => {
@@ -86,6 +98,12 @@ bot.command('unknown', async (ctx, next) => {
 	let msg = 'Comandi non conosciuti:\n';
 	msg = commands.reduce((acc, val) => acc + val.command + '\n', msg);
 	ctx.reply(msg);
+});
+
+bot.command('clear', async (ctx, next) => {
+	if (ctx.from.id != admin_id) return next();
+	await unknown.clear();
+	ctx.reply('cleared commands');
 });
 
 bot.on('message', async ctx => {

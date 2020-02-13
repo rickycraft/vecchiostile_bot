@@ -13,15 +13,11 @@ parseDate = date => {
 module.exports = class Trasferta {
 	constructor() {}
 
-	static insert(msg) {
-		const parsed = msg.text.split('\n');
-		const date = parseDate(parsed[1]);
-		const where = parsed[2];
-		const body = parsed.slice(3).join('\n');
+	static insert(match) {
 		return db.insert({
-			date: date,
-			where: where,
-			trasferta: body,
+			date: parseDate(match[1]),
+			where: match[2],
+			trasferta: match[3],
 		});
 	}
 

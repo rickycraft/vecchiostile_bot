@@ -3,11 +3,9 @@ const db = require('../database/db');
 module.exports = class News {
 	constructor() {}
 
-	static parse(message) {
-		const parsed = message.text.split('\n');
-		const body = parsed.slice(1).join('\n');
+	static parse(match) {
 		const news = {
-			news_body: body,
+			news_body: match[1],
 			date: new Date(),
 		};
 		return db.insert(news);

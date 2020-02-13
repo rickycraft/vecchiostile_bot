@@ -7,19 +7,28 @@ const keyboard = API.keyboard([
 	['pubblica trasferta', 'pubblica trasferta foto'],
 	['cancella trasferta'],
 ]);
+const rgx = require('../classes/regex');
+const insert_trasferta = `inserisci trasferta${rgx.s}(${rgx.date} ${rgx.time})${rgx.s}(${rgx.single_word})${rgx.s}(${rgx.body}+)`;
 
-API.bot.hears(/^inserisci trasferta\s*\n[\s\S]*/i, async ctx => {
+API.bot.hears(rgx.build(insert_trasferta), async (ctx, next) => {
 	const flag = await User.isModder(ctx.from.id);
-	if (!flag) return ctx.reply(messages.no_valid);
+	if (!flag) return next();
 
-	const trasferta = await Trasferta.insert(ctx.message);
+	const trasferta = await Trasferta.insert(ctx.match);
 	const msg = messages.added_trasferta + Trasferta.show(trasferta);
 	const extra = API.Extra.HTML().load(keyboard);
 
 	ctx.reply(msg, extra);
 });
 
-API.bot.hears(/^cancella trasferta/i, async ctx => {
+API.bot.hears(/inserisci trasferta/, async (ctx, next) => {
+	const flag = await User.isModder(ctx.from.id);
+	if (!flag) return next();
+
+	ctx.reply("controlla l'input");
+});
+
+API.bot.hears(/cancella trasferta/i, async ctx => {
 	const flag = await User.isModder(ctx.from.id);
 	if (!flag) return ctx.reply(messages.no_valid);
 
@@ -28,15 +37,15 @@ API.bot.hears(/^cancella trasferta/i, async ctx => {
 	else ctx.reply('Trasferta non cancellata');
 });
 
-API.bot.hears(/^(pubblica trasferta foto)/i, ctx => {
+API.bot.hears(/pubblica trasferta foto\s*/i, ctx => {
 	public(ctx.from.id, true);
 });
 
-API.bot.hears(/^(pubblica trasferta)/i, ctx => {
+API.bot.hears(/pubblica trasferta\s*$/i, ctx => {
 	public(ctx.from.id);
 });
 
-API.bot.hears(/^trasferte\s*(\d)?/i, async ctx => {
+API.bot.hears(/trasferte (\d)?\s*$/i, async ctx => {
 	const limit = ctx.match[1] ? ctx.match[1] : 1;
 	// se trasferta è 0 mostrale tutte
 	let trasferte = limit == 0 ? Trasferta.all() : Trasferta.upcoming(limit);
