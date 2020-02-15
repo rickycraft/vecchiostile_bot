@@ -12,7 +12,6 @@
 		"node-fetch": "^2.6.0",
 		"telegraf": "^3.36.0"
 	},
-	"devDependencies": {},
 	"scripts": {
 		"test": "nodemon server.js",
 		"start": "node server.js"

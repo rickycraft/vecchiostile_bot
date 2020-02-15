@@ -83,11 +83,10 @@ const regex = require('./classes/regex');
 bot.hears('test', async (ctx, next) => {
 	if (ctx.from.id != admin_id) return next();
 
-	const msg1 = await ctx.replyWithPoll('poll di prova', ['val 1', 'val 2']);
-	console.log(msg1);
+	const msg = await API.telegram.sendPoll(admin_id, 'test', ['t1', 't2']);
+	const m1 = await API.telegram.sendMessage(admin_id, msg.message_id);
+	console.log(m1);
 
-	const msg = await API.telegram.stopPoll(216608019, msg1.message_id);
-	//await ctx.replyWithPoll('poll di prova', ['val 1', 'val 2']);
 	console.log(msg);
 });
 
