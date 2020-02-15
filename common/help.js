@@ -12,7 +12,9 @@ const trasferta =
 
 const news = 'inserisci news\n' + 'messaggio\n';
 
-const template = trasferta.concat('#####\n') + news;
+const poll = 'inserisci poll\n' + 'domanda\n' + 'risposte\n';
+
+const template = trasferta.concat('#####\n') + news.concat('#####\n') + poll;
 
 module.exports = {
 	user_help: user_help,
