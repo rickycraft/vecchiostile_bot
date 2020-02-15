@@ -1,7 +1,6 @@
+const db = require('./database');
 const moment = require('moment');
 moment.locale('it');
-
-const db = require('../database/db');
 
 parseDate = date => {
 	// 9/2/20 15:40
@@ -25,7 +24,7 @@ module.exports = class Trasferta {
 		const date = moment(trasferta.date);
 		const data =
 			date.format('dddd D MMMM YYYY') + ' alle ' + date.format('HH:mm');
-		return `<pre>${trasferta.where}, ${data}</pre>${trasferta.trasferta}`;
+		return `<pre>${trasferta.where}, ${data}</pre>\n${trasferta.trasferta}`;
 	}
 
 	static upcoming(n) {

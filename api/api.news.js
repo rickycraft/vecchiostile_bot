@@ -1,37 +1,34 @@
-const API = require('../classes/api');
-const User = require('../classes/user');
-const messages = require('../classes/messages');
-const News = require('./news');
+const API = require('./api');
+const User = require('../database/user');
+const News = require('../database/news');
+const common = require('../common/common');
+const messages = require('../common/messages');
+const rgx = require('../common/regex');
 
 const keyboard = API.keyboard([
 	['pubblica news', 'pubblica news foto'],
 	['cancella news'],
 ]);
-
-const rgx = require('../classes/regex');
 const insert_news = rgx.build(`inserisci news${rgx.s}(${rgx.body}+)`);
 
 API.bot.hears(insert_news, async (ctx, next) => {
-	const flag = await User.isModder(ctx.from.id);
-	if (!flag) return next();
+	if (!ctx.modder) return next();
 
-	const news = await News.parse(ctx.match);
+	const news = await News.insert(ctx.match);
 	const msg = messages.added_news + news.news_body;
 	const extra = API.Extra.HTML().load(keyboard);
 
 	ctx.reply(msg, extra);
 });
 
-API.bot.hears(/inserisci news/, async (ctx, next) => {
-	const flag = await User.isModder(ctx.from.id);
-	if (!flag) return next();
+API.bot.hears(/inserisci news/, async ctx => {
+	if (!ctx.modder) return ctx.reply(messages.no_auth);
 
-	ctx.reply("controlla l'input");
+	ctx.reply(messages.check_input);
 });
 
 API.bot.hears(/cancella news/i, async ctx => {
-	const flag = await User.isModder(ctx.from.id);
-	if (!flag) return ctx.reply(messages.no_valid);
+	if (!ctx.modder) return ctx.reply(messages.no_auth);
 
 	const removed = await News.removeLatest();
 
@@ -40,11 +37,13 @@ API.bot.hears(/cancella news/i, async ctx => {
 });
 
 API.bot.hears(/^(pubblica news foto)/i, async ctx => {
-	public(ctx.from.id, true);
+	if (ctx.modder) public(ctx.from.id, true);
+	else ctx.reply(messages.no_auth);
 });
 
 API.bot.hears(/^(pubblica news)/i, async ctx => {
-	public(ctx.from.id);
+	if (ctx.modder) public(ctx.from.id);
+	else ctx.reply(messages.no_auth);
 });
 
 API.bot.hears(/^(ultima news\s*)/i, async ctx => {
@@ -55,13 +54,10 @@ API.bot.hears(/^(ultima news\s*)/i, async ctx => {
 });
 
 public = async (id, isphoto) => {
-	const flag = await User.isModder(id);
-	if (!flag) return API.telegram.sendMessage(id, messages.no_valid);
-
 	const news = await News.latest();
-	let msg = messages.news + news.news_body;
+	const msg = messages.news + news.news_body;
 
-	if (news) await User.public(msg, isphoto);
+	if (news) await common.public(msg, isphoto);
 	else telegram.sendMessage(id, 'non ci sono news da pubblicare');
 };
 

@@ -9,4 +9,6 @@ module.exports = {
 	no_valid: 'Non è un comando valido',
 	news: '<b>IMPORTANTE:</b>\n',
 	latest_news: '<b>Ultima news:</b>\n',
+	check_input: "Controlla l'input",
+	no_auth: 'Non sei autorizzato',
 };

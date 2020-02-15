@@ -1,14 +1,13 @@
-const db = require('../database/db');
+const db = require('./database');
 
 module.exports = class News {
 	constructor() {}
 
-	static parse(match) {
-		const news = {
+	static insert(match) {
+		return db.insert({
 			news_body: match[1],
 			date: new Date(),
-		};
-		return db.insert(news);
+		});
 	}
 
 	static async removeLatest() {

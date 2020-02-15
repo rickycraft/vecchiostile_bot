@@ -1,18 +1,20 @@
-const API = require('../classes/api');
-const User = require('../classes/user');
-const messages = require('../classes/messages');
-const Trasferta = require('./trasferta');
+const API = require('./api');
+const User = require('../database/user');
+const Trasferta = require('../database/trasferta');
+const common = require('../common/common');
+const messages = require('../common/messages');
+const rgx = require('../common/regex');
 
 const keyboard = API.keyboard([
 	['pubblica trasferta', 'pubblica trasferta foto'],
 	['cancella trasferta'],
 ]);
-const rgx = require('../classes/regex');
-const insert_trasferta = `inserisci trasferta${rgx.s}(${rgx.date} ${rgx.time})${rgx.s}(${rgx.single_word})${rgx.s}(${rgx.body}+)`;
+const insert_trasferta = rgx.build(
+	`inserisci trasferta${rgx.s}(${rgx.date} ${rgx.time})${rgx.s}(${rgx.single_word})${rgx.s}(${rgx.body}+)`
+);
 
-API.bot.hears(rgx.build(insert_trasferta), async (ctx, next) => {
-	const flag = await User.isModder(ctx.from.id);
-	if (!flag) return next();
+API.bot.hears(insert_trasferta, async (ctx, next) => {
+	if (!ctx.modder) return next();
 
 	const trasferta = await Trasferta.insert(ctx.match);
 	const msg = messages.added_trasferta + Trasferta.show(trasferta);
@@ -21,16 +23,13 @@ API.bot.hears(rgx.build(insert_trasferta), async (ctx, next) => {
 	ctx.reply(msg, extra);
 });
 
-API.bot.hears(/inserisci trasferta/, async (ctx, next) => {
-	const flag = await User.isModder(ctx.from.id);
-	if (!flag) return next();
-
-	ctx.reply("controlla l'input");
+API.bot.hears(/inserisci trasferta/, async ctx => {
+	if (!ctx.modder) return ctx.reply(messages.no_auth);
+	ctx.reply(messages.check_input);
 });
 
 API.bot.hears(/cancella trasferta/i, async ctx => {
-	const flag = await User.isModder(ctx.from.id);
-	if (!flag) return ctx.reply(messages.no_valid);
+	if (!ctx.modder) return ctx.reply(messages.no_auth);
 
 	const removed = await Trasferta.removeLast();
 	if (removed > 0) ctx.reply('Trasferta cancellata');
@@ -41,11 +40,11 @@ API.bot.hears(/pubblica trasferta foto\s*/i, ctx => {
 	public(ctx.from.id, true);
 });
 
-API.bot.hears(/pubblica trasferta\s*$/i, ctx => {
+API.bot.hears(/pubblica trasferta\s*/i, ctx => {
 	public(ctx.from.id);
 });
 
-API.bot.hears(/trasferte (\d)?\s*$/i, async ctx => {
+API.bot.hears(/trasferte\s*(\d)?/i, async ctx => {
 	const limit = ctx.match[1] ? ctx.match[1] : 1;
 	// se trasferta è 0 mostrale tutte
 	let trasferte = limit == 0 ? Trasferta.all() : Trasferta.upcoming(limit);
@@ -61,14 +60,13 @@ API.bot.hears(/trasferte (\d)?\s*$/i, async ctx => {
 });
 
 const public = async (id, isphoto) => {
-	const flag = await User.isModder(id);
-	if (!flag) return API.telegram.sendMessage(id, messages.no_valid);
+	if (!ctx.modder) return ctx.reply(messages.no_auth);
 
 	const trasferta = await Trasferta.upcoming(1);
 
 	if (trasferta.length == 1) {
 		const msg = messages.next_trasferta + Trasferta.show(trasferta[0]);
-		await User.public(msg, isphoto);
+		await common.public(msg, isphoto);
 	} else API.telegram.sendMessage(id, 'non ci sono trasferte da pubblicare');
 };
 

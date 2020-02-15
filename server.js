@@ -1,13 +1,13 @@
 require('dotenv').config();
 
 // telegraf
-const API = require('./classes/api');
+const API = require('./api/api');
 const bot = API.bot;
 
 // Classes
-const User = require('./classes/user');
-const messages = require('./classes/messages');
-const unknown = require('./classes/unknown');
+const User = require('./database/user');
+const messages = require('./common/messages');
+const help = require('./common/help');
 
 bot.catch((err, ctx) => {
 	console.log(`ERROR ${ctx.updateType}`, err);
@@ -18,8 +18,22 @@ bot.start(async ctx => {
 	ctx.reply(messages.welcome);
 });
 
+API.bot.on('poll', ctx => {
+	//	console.log('Poll update', ctx.poll)
+});
+API.bot.on('poll_answer', ctx => {
+	// 	console.log('Poll answer', ctx.pollAnswer);
+});
+
+bot.use(async (ctx, next) => {
+	// console.log(ctx);
+	if (ctx.updateType == 'message')
+		ctx.modder = await User.isModder(ctx.from.id);
+	next();
+});
+
 // PHOTO
-const photo = require('./photo/photoAPI');
+const photo = require('./api/api.photo');
 
 bot.use((ctx, next) => {
 	if (ctx.updateType == 'message' && ctx.updateSubTypes == 'photo')
@@ -28,87 +42,42 @@ bot.use((ctx, next) => {
 });
 
 // TRASFERTE
-const trasferte = require('./trasferta/trasfertaAPI');
+const trasferta = require('./api/api.trasferta');
 
 // NEWS
-const news = require('./news/newsAPI');
+const news = require('./api/api.news');
+
+//POLL
+const poll = require('./api/api.poll');
 
 // HELP
 bot.help(async ctx => {
-	const flag = await User.isModder(ctx.from.id);
 	let msg = 'COMANDI\n';
-	if (flag) {
-		msg = photo.commands
-			.reduce((acc, val) => acc + '\n' + val, msg)
-			.concat('\n#####');
-		msg = trasferte.commands
-			.reduce((acc, val) => acc + '\n' + val, msg)
-			.concat('\n#####');
-		msg = news.commands
-			.reduce((acc, val) => acc + '\n' + val, msg)
-			.concat('\n\nUTENTE\n');
+	if (ctx.modder) {
+		msg = help.add_help(msg, photo);
+		msg = help.add_help(msg, trasferta);
+		msg = help.add_help(msg, news);
+		msg = help.add_help(msg, poll);
 	}
-	msg +=
-		'\nvedere la prossima trasferta: <b>trasferte</b>\n' +
-		'vedere le prossime n trasferte: <b>trasferte n</b>\n' +
-		"vedere tutte le trasferte dell'anno: <b>trasferte 0</b>\n" +
-		"vedere l'ultima news: <b>ultima news</b>";
+	msg += help.user_help;
 
 	ctx.reply(msg, API.Extra.HTML());
 });
 
 bot.command('template', async ctx => {
-	const flag = await User.isModder(ctx.from.id);
-	if (!flag) return ctx.reply(messages.no_valid);
-
-	let msg =
-		'inserisci trasferta\n' +
-		'20/2/21 10:20\n' +
-		'dove\n' +
-		'messaggio\n' +
-		'#####\n';
-	msg += 'inserisci news\n' + 'messaggio\n';
-	ctx.reply(msg);
+	if (ctx.modder) ctx.reply(help.template);
 });
 
 // TEST
 const admin_id = 216608019;
 
-API.bot.on('poll', ctx => console.log('Poll update', ctx.poll));
-API.bot.on('poll_answer', ctx => console.log('Poll answer', ctx.pollAnswer));
-
-require('./poll');
-const regex = require('./classes/regex');
-
 bot.hears('test', async (ctx, next) => {
-	if (ctx.from.id != admin_id) return next();
+	if (ctx.from.id != admin_id) return;
 
-	const msg = await API.telegram.sendPoll(admin_id, 'test', ['t1', 't2']);
-	const m1 = await API.telegram.sendMessage(admin_id, msg.message_id);
-	console.log(m1);
-
-	console.log(msg);
+	require('./database/poll').removeAll();
 });
 
-bot.command('unknown', async (ctx, next) => {
-	if (ctx.from.id != admin_id) return next();
-	const commands = await unknown.all();
-	console.log(commands);
-	let msg = 'Comandi non conosciuti:\n';
-	msg = commands.reduce((acc, val) => acc + val.command + '\n', msg);
-	ctx.reply(msg);
-});
-
-bot.command('clear', async (ctx, next) => {
-	if (ctx.from.id != admin_id) return next();
-	await unknown.clear();
-	ctx.reply('cleared commands');
-});
-
-bot.on('message', async ctx => {
-	console.log(ctx.message.text);
-	ctx.reply(messages.no_valid);
-	await unknown.insert(ctx.message.text);
-});
+// LAST!!
+require('./api/api.unknown');
 
 bot.startPolling();

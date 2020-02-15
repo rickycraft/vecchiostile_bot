@@ -1,6 +1,4 @@
-const API = require('./api');
-const Photo = require('../photo/photo');
-const db = require('../database/db');
+const db = require('./database');
 
 module.exports = class User {
 	constructor() {}
@@ -30,19 +28,6 @@ module.exports = class User {
 	static all() {
 		return db.find({
 			user_id: { $exists: true },
-		});
-	}
-
-	static async public(msg, isphoto) {
-		let users = this.all();
-		let photo = null;
-		if (isphoto) photo = await Photo.latest();
-		users = await users;
-
-		users.forEach(user => {
-			API.telegram.sendMessage(user.user_id, msg, API.Extra.HTML());
-			if (isphoto && photo)
-				API.telegram.sendPhoto(user.user_id, photo.photo_id);
 		});
 	}
 };
