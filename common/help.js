@@ -12,7 +12,7 @@ const trasferta =
 
 const news = 'inserisci news\n' + 'messaggio\n';
 
-const poll = 'inserisci poll\n' + 'domanda\n' + 'risposte\n';
+const poll = 'inserisci sondaggio\n' + 'domanda\n' + 'risposte\n';
 
 const template = trasferta.concat('#####\n') + news.concat('#####\n') + poll;
 
