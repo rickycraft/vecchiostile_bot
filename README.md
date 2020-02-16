@@ -1,10 +1,10 @@
 # vecchiostile_bot
 
-bot vecchio stile per trasferte e molto altro
+Bot vecchio stile per trasferte, news e sondaggi
 
-# librerie usate
+# Libraries
 
--   [Telegraf](https://github.com/telegraf/telegraf), nodejs library for Telegram BOT API
+-   [Telegraf](https://github.com/telegraf/telegraf), nodejs library for Telegram bot API
 -   [NeDB](https://github.com/louischatriot/nedb), embedded database in node
 -   [nedb-promises](https://www.npmjs.com/package/nedb-promises), wrapper for nedb to use async await
 -   [Moment](https://momentjs.com), useful to handle dates
