@@ -14,8 +14,8 @@ bot.catch((err, ctx) => {
 });
 
 bot.start(async ctx => {
+	ctx.reply(messages.welcome, API.Extra.HTML());
 	await User.addUser(ctx.from.id, ctx.from.username);
-	ctx.reply(messages.welcome);
 });
 
 API.bot.on('poll', ctx => {

@@ -1,5 +1,12 @@
+const welcome =
+	'<b>Benvenuto nel bot del Vecchio Stile</b>\n' +
+	'Con questo bot potrai visualizzare le prossime trasferte del gruppo usando il comando /prossima_trasferta\n' +
+	'Tramite questo bot invieremo news in tempo reale sul gruppo e sulla Virtus, attivate le notifiche\n' +
+	'Per qualsiasi problema digita <b>/help</b>\n' +
+	'<i>IN ALTO STAT VIRTUS</i>';
+
 module.exports = {
-	welcome: 'Benvenuto al bot dei virtus boys',
+	welcome: welcome,
 	added_news: '<b>Hai aggiunto con successo la news</b>\n',
 	added_trasferta: '<b>Hai aggiunto con successo la trasferta:</b>\n',
 	upcomig_trasferte: '<b>Le trasferte in arrivo sono:</b>\n',

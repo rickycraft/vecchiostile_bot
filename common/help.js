@@ -1,5 +1,5 @@
 const user_help =
-	'\nvedere la prossima trasferta: <b>trasferte</b>\n' +
+	'\nvedere la prossima trasferta: <b>/prossima_trasferta</b>\n' +
 	'vedere le prossime n trasferte: <b>trasferte n</b>\n' +
 	"vedere tutte le trasferte dell'anno: <b>trasferte 0</b>\n" +
 	"vedere l'ultima news: <b>ultima news</b>";

@@ -59,6 +59,14 @@ API.bot.hears(/trasferte\s*(\d)?/i, async ctx => {
 	ctx.reply(msg, API.Extra.HTML());
 });
 
+API.bot.command('prossima_trasferta', async ctx => {
+	const trasferta = await Trasferta.upcoming(1);
+	if (trasferta.length == 1) {
+		const msg = Trasferta.show(trasferta[0]);
+		ctx.reply(msg, API.Extra.HTML());
+	} else ctx.reply(messages.no_trasferte);
+});
+
 const public = async (id, isphoto) => {
 	if (!ctx.modder) return ctx.reply(messages.no_auth);
 
