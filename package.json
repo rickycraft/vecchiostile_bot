@@ -4,12 +4,10 @@
 	"description": "vecchio stile bot",
 	"main": "server.js",
 	"dependencies": {
-		"delay": "^4.3.0",
 		"dotenv": "^8.2.0",
 		"moment": "^2.24.0",
 		"nedb": "^1.8.0",
 		"nedb-promises": "^4.0.1",
-		"node-fetch": "^2.6.0",
 		"telegraf": "^3.36.0"
 	},
 	"scripts": {
@@ -23,8 +21,7 @@
 	"keywords": [
 		"virtus",
 		"boys",
-		"vecchiostile",
-		"trasferta"
+		"vecchiostile"
 	],
 	"author": "rickycraft",
 	"license": "MIT",
