@@ -4,6 +4,8 @@ const user_help =
 	"vedere tutte le trasferte dell'anno: <b>trasferte 0</b>\n" +
 	"vedere l'ultima news: <b>ultima news</b>";
 
+const template_help = '/template per vedere il template\n';
+
 const add_help = (msg, arr) =>
 	arr.commands.reduce((acc, val) => acc + '\n' + val, msg).concat('\n#####');
 
@@ -20,4 +22,5 @@ module.exports = {
 	user_help: user_help,
 	add_help: add_help,
 	template: template,
+	template_help: template_help,
 };

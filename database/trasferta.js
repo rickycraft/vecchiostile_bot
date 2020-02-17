@@ -17,6 +17,7 @@ module.exports = class Trasferta {
 			date: parseDate(match[1]),
 			where: match[2],
 			trasferta: match[3],
+			crate_date: new Date(),
 		});
 	}
 
@@ -40,6 +41,17 @@ module.exports = class Trasferta {
 			.limit(n);
 	}
 
+	static async latest() {
+		const trasferta = await db
+			.find({
+				trasferta: { $exists: true },
+				where: { $exists: true },
+			})
+			.sort({ crate_date: -1 })
+			.limit(1);
+		return trasferta.length == 1 ? trasferta[0] : null;
+	}
+
 	static all() {
 		return db
 			.find({
@@ -49,17 +61,8 @@ module.exports = class Trasferta {
 			.sort({ date: 1 });
 	}
 
-	static async removeLast() {
-		const curr_date = new Date();
-		const trasferte = await db
-			.find({
-				trasferta: { $exists: true },
-				where: { $exists: true },
-			})
-			.sort({ date: -1 })
-			.limit(1);
-
-		if (trasferte.length > 0) return db.remove(trasferte[0]);
-		else return 0;
+	static async remove() {
+		const trasferta = await this.latest();
+		return trasferta ? db.remove(trasferta) : 0;
 	}
 };

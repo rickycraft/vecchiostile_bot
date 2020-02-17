@@ -31,7 +31,8 @@ API.bot.hears(/inserisci trasferta/, async ctx => {
 API.bot.hears(/cancella trasferta/i, async ctx => {
 	if (!ctx.modder) return ctx.reply(messages.no_auth);
 
-	const removed = await Trasferta.removeLast();
+	const removed = await Trasferta.remove();
+
 	if (removed > 0) ctx.reply('Trasferta cancellata');
 	else ctx.reply('Trasferta non cancellata');
 });

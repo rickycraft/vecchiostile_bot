@@ -54,6 +54,7 @@ const poll = require('./api/api.poll');
 bot.help(async ctx => {
 	let msg = 'COMANDI\n';
 	if (ctx.modder) {
+		msg += help.template_help;
 		msg = help.add_help(msg, photo);
 		msg = help.add_help(msg, trasferta);
 		msg = help.add_help(msg, news);
