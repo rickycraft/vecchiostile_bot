@@ -37,10 +37,12 @@ API.bot.hears(/cancella trasferta/i, async ctx => {
 });
 
 API.bot.hears(/pubblica trasferta foto\s*/i, ctx => {
+	if (!ctx.modder) return ctx.reply(messages.no_auth);
 	public(ctx.from.id, true);
 });
 
 API.bot.hears(/pubblica trasferta\s*/i, ctx => {
+	if (!ctx.modder) return ctx.reply(messages.no_auth);
 	public(ctx.from.id);
 });
 
@@ -68,8 +70,6 @@ API.bot.command('prossima_trasferta', async ctx => {
 });
 
 const public = async (id, isphoto) => {
-	if (!ctx.modder) return ctx.reply(messages.no_auth);
-
 	const trasferta = await Trasferta.upcoming(1);
 
 	if (trasferta.length == 1) {
