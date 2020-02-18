@@ -10,6 +10,7 @@ const messages = require('./common/messages');
 const help = require('./common/help');
 
 bot.catch((err, ctx) => {
+	ctx.reply(messages.error);
 	console.log(`ERROR ${ctx.updateType}`, err);
 });
 

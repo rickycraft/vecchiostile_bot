@@ -18,4 +18,5 @@ module.exports = {
 	latest_news: '<b>Ultima news:</b>\n',
 	check_input: "Controlla l'input",
 	no_auth: 'Non sei autorizzato',
+	error: "C'è stato un errore",
 };
