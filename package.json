@@ -5,10 +5,10 @@
 	"main": "server.js",
 	"dependencies": {
 		"dotenv": "^8.2.0",
-		"moment": "^2.24.0",
+		"moment": "^2.27.0",
 		"nedb": "^1.8.0",
-		"nedb-promises": "^4.0.1",
-		"telegraf": "^3.36.0"
+		"nedb-promises": "^4.0.4",
+		"telegraf": "^3.38.0"
 	},
 	"scripts": {
 		"test": "nodemon server.js",
